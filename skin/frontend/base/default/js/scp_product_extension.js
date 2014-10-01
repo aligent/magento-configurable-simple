@@ -363,13 +363,13 @@ Product.Config.prototype.showFullImageDiv = function(productId, parentId) {
                     imgObj.src = $('image').src;
                 } else {
                     destElement.innerHTML = defaultZoomer;
-                    product_zoom = new Product.Zoom('image', 'track', 'handle', 'zoom_in', 'zoom_out', 'track_hint')
+//                    product_zoom = new Product.Zoom('image', 'track', 'handle', 'zoom_in', 'zoom_out', 'track_hint')
                 }
           }
         });
     } else {
         destElement.innerHTML = defaultZoomer;
-        product_zoom = new Product.Zoom('image', 'track', 'handle', 'zoom_in', 'zoom_out', 'track_hint');
+//        product_zoom = new Product.Zoom('image', 'track', 'handle', 'zoom_in', 'zoom_out', 'track_hint');
     }
 };
 

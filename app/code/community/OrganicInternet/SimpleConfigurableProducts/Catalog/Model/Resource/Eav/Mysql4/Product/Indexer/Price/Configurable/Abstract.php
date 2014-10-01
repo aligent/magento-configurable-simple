@@ -1,6 +1,6 @@
 <?php
 
-if (class_exists('Innoexts_Warehouse_Model_Mysql4_Catalog_Product_Indexer_Price_Configurable')) {
+if (class_exists('Innoexts_Warehouse_Model_Mysql4_Catalog_Product_Indexer_Price_Configurable', false)) {
 /**
  * This class extends InnoExts Multiwarehouse if it's being used.  If so, the stock_id column added by the
  * multiwarehouse module is also included in the index.
