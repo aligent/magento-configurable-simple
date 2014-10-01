@@ -173,11 +173,11 @@ Product.Config.prototype.reloadPrice = function() {
         this.updateFormProductId(childProductId);
         this.addParentProductIdToCartForm(this.config.productId);
         this.showCustomOptionsBlock(childProductId, this.config.productId);
-        if (usingZoomer) {
-            this.showFullImageDiv(childProductId, this.config.productId);
-        }else{
+//        if (usingZoomer) {
+//            this.showFullImageDiv(childProductId, this.config.productId);
+//        }else{
             this.updateProductImage(childProductId);
-        }
+//        }
 
     } else {
         var cheapestPid = this.getProductIdOfCheapestProductInScope("finalPrice");
@@ -196,11 +196,11 @@ Product.Config.prototype.reloadPrice = function() {
         this.updateProductSku(false);
         this.updateProductAttributes(false);
         this.showCustomOptionsBlock(false, false);
-        if (usingZoomer) {
-            this.showFullImageDiv(false, false);
-        }else{
+//        if (usingZoomer) {
+//            this.showFullImageDiv(false, false);
+//        }else{
             this.updateProductImage(false);
-        }
+//        }
     }
 };
 
@@ -219,11 +219,13 @@ Product.Config.prototype.updateProductImage = function(productId) {
     if($('image')) {
         $('image').src = imageUrl;
     } else {
-        $$('#product_addtocart_form a.product-image img').each(function(el) {
+        $$('#pdp-carousel  div.carousel  div.slide.slide1.cycle-slide.cycle-slide-active  a  img').each(function(el) {
             var dims = el.getDimensions();
+//            console.log(el);
+//            console.log(imageUrl);
             el.src = imageUrl;
-            el.width = dims.width;
-            el.height = dims.height;
+//            el.width = dims.width;
+//            el.height = dims.height;
         });
     }
 };
