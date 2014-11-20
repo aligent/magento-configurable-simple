@@ -58,9 +58,11 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
             #if image changing is enabled..
             if (Mage::getStoreConfig('SCP_options/product_page/change_image')) {
                 #If image is not placeholder...
-                if($product->getImage()!=='no_selection') {
-                    $productMag = Mage::getModel('catalog/product')->load($productId);
-                    $childProducts[$productId]["imageUrl"][] = (string) Mage::helper('catalog/image')->init($productMag, 'image');
+                $product->getResource()->getAttribute('media_gallery')->getBackend()->afterLoad($product);
+                foreach ($product->getMediaGalleryImages() as $image) {
+                    $childProducts[$productId]["imageUrl"][] = (string) Mage::helper('catalog/image')->init($product, 'image', $image->getFile())
+                        ->keepAspectRatio(true)->keepFrame(false)
+                        ->resize(750, null);
                 }
 
                 //Add Parent Images for use in Galleria

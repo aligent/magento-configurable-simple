@@ -147,7 +147,7 @@ Product.OptionsPrice.prototype.updateSpecialPriceDisplay = function(price, final
 
 //This triggers reload of price and other elements that can change
 //once all options are selected
-Product.Config.prototype.reloadPrice = function() {
+Product.Config.prototype.reloadPrice = function(reloadImage) {
     var childProductId = this.getMatchingSimpleProduct();
     var childProducts = this.config.childProducts;
 
@@ -170,7 +170,9 @@ Product.Config.prototype.reloadPrice = function() {
         this.addParentProductIdToCartForm(this.config.productId);
         this.showCustomOptionsBlock(childProductId, this.config.productId);
         //Do not check for usingZoomer, as galleria has it's own zoomer.
-        this.updateProductImage(childProductId);
+        if (reloadImage) {
+            this.updateProductImage(childProductId);
+        }
 
     } else {
         var cheapestPid = this.getProductIdOfCheapestProductInScope("finalPrice");
@@ -190,7 +192,9 @@ Product.Config.prototype.reloadPrice = function() {
         this.updateProductAttributes(false);
         this.showCustomOptionsBlock(false, false);
         //Do not check for usingZoomer, as galleria has it's own zoomer.
-        this.updateProductImage(false);
+        if (reloadImage) {
+            this.updateProductImage(false);
+        }
     }
 };
 
@@ -229,13 +233,9 @@ Product.Config.prototype.updateProductImage = function(productId) {
     var gal = Galleria.get(0);
     var dataArr = new Array();
 
-    //Push simple products first image
-    dataArr.push({image: imageUrl[0]});
-    for(i = 0; i < this.config.parentImages.length; i++) {
-        //Push parent images to media gallery only if it doesn't
-        //match the simple products image
-        if(this.config.parentImages[i] != imageUrl[0]);
-        dataArr.push({image: this.config.parentImages[i]});
+    //Push simple products images
+    for(i = 0; i < imageUrl.length; i++) {
+        dataArr.push({image: imageUrl[i]})
     }
 
     gal.load(dataArr);
@@ -436,7 +436,8 @@ Product.Config.prototype.configureElement = function(element) {
             document.fire('scp:optionsChanged', {attributeId: attributeId});
         }
     }
-    this.reloadPrice();
+    reloadImage = (element.nextSetting !== false);  // Stop image reloading on last option (ie. size select)
+    this.reloadPrice(reloadImage);
 };
 
 
