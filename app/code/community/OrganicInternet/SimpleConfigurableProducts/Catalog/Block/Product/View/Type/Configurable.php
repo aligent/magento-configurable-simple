@@ -141,4 +141,15 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         //parent getJsonConfig uses the following instead, but it seems to just break inline translate of this json?
         //return Mage::helper('core')->jsonEncode($config);
     }
+
+    public function getCacheKey() {
+        $vCachekey = parent::getCacheKey();
+        if ($oChildProduct = Mage::registry('child_product')) {
+            if ($oChildProduct->isSaleable()) {
+                $vCachekey .= 'selected_'.$oChildProduct->getId();
+            }
+        }
+        return $vCachekey;
+    }
+
 }
