@@ -95,8 +95,10 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Product_Type_Conf
         $childProducts = $product->getTypeInstance(true)->getUsedProductCollection($product);
         $childProducts->addAttributeToSelect(array('price', 'special_price', 'status', 'special_from_date', 'special_to_date'));
         // Never use disabled products
-        $childProducts->addFieldToFilter('status', array('neq'=>2));
-
+        $childProducts->addFieldToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED);
+        // Ensure child products are available in this website
+        $childProducts->addWebsiteFilter(Mage::app()->getWebsite()->getId());
+        
         if ($checkSalable) {
             $salableChildProducts = array();
             foreach($childProducts as $childProduct) {
