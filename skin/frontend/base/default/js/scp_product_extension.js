@@ -103,7 +103,7 @@ Product.Config.prototype.updateFormProductId = function(productId){
     var currentAction = $('product_addtocart_form').action;
     newcurrentAction = currentAction.sub(/product\/\d+\//, 'product/' + productId + '/');
     $('product_addtocart_form').action = newcurrentAction;
-    $('product_addtocart_form').product.value = productId;
+    //$('product_addtocart_form').product.value = productId;
 };
 
 

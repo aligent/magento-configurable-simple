@@ -77,10 +77,14 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
                         unset($option['price']);
                     }
                     unset($option); //clear foreach var ref
+
+                    /* Sort the Options */
+                    $info['options'] = $this->_sortOptions($info['options']);
                 }
             }
             unset($info); //clear foreach var ref
         }
+
 
         $p = $this->getProduct();
         $config['childProducts'] = $childProducts;
@@ -128,4 +132,38 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         //parent getJsonConfig uses the following instead, but it seems to just break inline translate of this json?
         //return Mage::helper('core')->jsonEncode($config);
     }
+
+    // preserves the order of attribute options from the position field in the admin attribute option settings
+    protected function _sortOptions($options)
+    {
+        if (count($options)) {
+            if (!$this->_read || !$this->_tbl_eav_attribute_option) {
+                $resource = Mage::getSingleton('core/resource');
+
+                $this->_read = $resource->getConnection('core_read');
+                $this->_tbl_eav_attribute_option = $resource->getTableName('eav_attribute_option');
+            }
+
+            // Gather the option_id for all our current options
+            $option_ids = array();
+            foreach ($options as $option) {
+                $option_ids[] = $option['id'];
+
+                $var_name  = 'option_id_'.$option['id'];
+                $$var_name = $option;
+            }
+
+            $sql    = "SELECT `option_id` FROM `{$this->_tbl_eav_attribute_option}` WHERE `option_id` IN('".implode('\',\'', $option_ids)."') ORDER BY `sort_order`";
+            $result = $this->_read->fetchCol($sql);
+
+            $options = array();
+            foreach ($result as $option_id) {
+                $var_name  = 'option_id_'.$option_id;
+                $options[] = $$var_name;
+            }
+        }
+
+        return $options;
+    }
+
 }
