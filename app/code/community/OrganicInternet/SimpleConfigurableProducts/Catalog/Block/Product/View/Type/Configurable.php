@@ -7,10 +7,14 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
     {
         $config = Zend_Json::decode(parent::getJsonConfig());
 
+        $aProducts = $this->getAllowProducts();
+
+        Mage::dispatchEvent('scp_config_before_prepare', array('config' => &$config, 'products' => $aProducts, 'block' => $this));
+
         $childProducts = array();
 
         //Create the extra price and tier price data/html we need.
-        foreach ($this->getAllowProducts() as $product) {
+        foreach ($aProducts as $product) {
             $productId  = $product->getId();
             $childProducts[$productId] = array(
                 "price" => $this->_registerJsPrice($this->_convertPrice($product->getPrice())),
@@ -128,6 +132,11 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
             $config['showPriceRangesInOptions'] = true;
             $config['rangeToLabel'] = $this->__('to');
         }
+
+        $oEventData = new Varien_Object(array('config' => &$config, 'products' => $aProducts, 'block' => $this));
+
+        Mage::dispatchEvent('scp_config_after_prepare', array('event_data' => $oEventData));
+
         return Zend_Json::encode($config);
         //parent getJsonConfig uses the following instead, but it seems to just break inline translate of this json?
         //return Mage::helper('core')->jsonEncode($config);
