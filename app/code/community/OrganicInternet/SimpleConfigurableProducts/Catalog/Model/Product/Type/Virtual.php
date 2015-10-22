@@ -2,6 +2,12 @@
 class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Product_Type_Virtual
     extends Mage_Catalog_Model_Product_Type_Virtual
 {
+    /**
+     * Add the CPID to virtual products when preparing the cart request
+     * @param  Varien_Object              $buyRequest
+     * @param  Mage_Catalog_Model_Product $product
+     * @return array
+     */
     public function prepareForCart(Varien_Object $buyRequest, $product = null)
     {
         $product = $this->getProduct($product);

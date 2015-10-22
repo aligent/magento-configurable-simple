@@ -8,6 +8,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Product_
      * This field seems to only appear when the collection has ->addPriceData();
      * 
      * @see Mage_Catalog_Model_Resource_Product_Collection::_productLimitationJoinPrice()
+     * @return self
      */
     protected function _productLimitationJoinPrice()
     {
@@ -18,21 +19,27 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Product_
 
         $helper     = Mage::getResourceHelper('core');
         $connection = $this->getConnection();
-		$select     = $this->getSelect();
-        $joinCond = join(' AND ', array(
-            'price_index.entity_id = e.entity_id',
-            $connection->quoteInto('price_index.website_id = ?', $filters['website_id']),
-            $connection->quoteInto('price_index.customer_group_id = ?', $filters['customer_group_id'])
-        ));
+        $select     = $this->getSelect();
+        $joinCond = join(
+            ' AND ',
+            array(
+                'price_index.entity_id = e.entity_id',
+                $connection->quoteInto('price_index.website_id = ?', $filters['website_id']),
+                $connection->quoteInto('price_index.customer_group_id = ?', $filters['customer_group_id'])
+            )
+        );
 
         $fromPart = $select->getPart(Zend_Db_Select::FROM);
         if (!isset($fromPart['price_index'])) {
-        	$least       = $connection->getLeastSql(array('price_index.min_price', 'price_index.tier_price'));
-            $minimalExpr = $connection->getCheckSql('price_index.tier_price IS NOT NULL',
-                $least, 'price_index.min_price');
+            $least       = $connection->getLeastSql(array('price_index.min_price', 'price_index.tier_price'));
+            $minimalExpr = $connection->getCheckSql(
+                'price_index.tier_price IS NOT NULL',
+                $least,
+                'price_index.min_price'
+            );
             $indexedExpr = new Zend_Db_Expr('price_index.price');
-            $colls = array('indexed_price'=>$indexedExpr,'price', 'tax_class_id', 'final_price', 
-            	'minimal_price'=>$minimalExpr , 'min_price', 'max_price', 'tier_price');
+            $colls = array('indexed_price' => $indexedExpr, 'price', 'tax_class_id', 'final_price', 
+                           'minimal_price' => $minimalExpr, 'min_price', 'max_price', 'tier_price');
             $tableName = array('price_index' => $this->getTable('catalog/product_index_price'));
             $select->join($tableName, $joinCond, $colls);
                 
@@ -45,7 +52,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Product_
             $fromPart['price_index']['joinCondition'] = $joinCond;
             $select->setPart(Zend_Db_Select::FROM, $fromPart);
         }
-        //Clean duplicated fields
+        // Clean duplicated fields
         $helper->prepareColumnsList($select);
 
         return $this;
