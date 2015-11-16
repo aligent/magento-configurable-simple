@@ -25,6 +25,8 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysq
             'group_price',
             'base_group_price',
             'stock_id', // Extra field introduced by InnoExts Multiwarehouse
+            'currency', // Extra field introduced by InnoExts Multiwarehouse
+            'store_id', // Extra field introduced by InnoExts Multiwarehouse
             #'child_entity_id'
         );
     }
@@ -43,7 +45,9 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysq
             'base_tier'         => new Zend_Db_Expr('pi.tier_price'),
             'group_price'       => new Zend_Db_Expr('pi.group_price'),
             'base_group_price'  => new Zend_Db_Expr('pi.group_price'),
-            'stock_id'      => new Zend_Db_Expr('cis.stock_id') // Extra field introduced by InnoExts Multiwarehouse
+            'stock_id'      => new Zend_Db_Expr('cis.stock_id'), // Extra field introduced by InnoExts Multiwarehouse
+            'currency'      => new Zend_Db_Expr('pi.currency'), // Extra field introduced by InnoExts Multiwarehouse
+            'store_id'      => new Zend_Db_Expr('pi.store_id'), // Extra field introduced by InnoExts Multiwarehouse
         );
     }
 

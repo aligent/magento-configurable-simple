@@ -124,4 +124,48 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Product_
         return $this;
     }
 
+    /**
+     * Prepare tier price index table
+     * @see Mage_Catalog_Model_Resource_Product_Indexer_Price::_prepareTierPriceIndex
+     *
+     * @param int|array $entityIds the entity ids limitation
+     * @return Mage_Catalog_Model_Resource_Product_Indexer_Price
+     */
+    protected function _prepareTierPriceIndex($entityIds = null)
+    {
+        $write = $this->_getWriteAdapter();
+        $table = $this->_getTierPriceIndexTable();
+        $write->delete($table);
+
+        $websiteExpression = $write->getCheckSql('tp.website_id = 0', 'ROUND(tp.value * cwd.rate, 4)', 'tp.value');
+        $select = $write->select()
+            ->from(
+                array('tp' => $this->getValueTable('catalog/product', 'tier_price')),
+                array('entity_id'))
+            ->join(
+                array('cg' => $this->getTable('customer/customer_group')),
+                'tp.all_groups = 1 OR (tp.all_groups = 0 AND tp.customer_group_id = cg.customer_group_id)',
+                array('customer_group_id'))
+            ->join(
+                array('cw' => $this->getTable('core/website')),
+                'tp.website_id = 0 OR tp.website_id = cw.website_id',
+                array('website_id'))
+            ->join(
+                array('cwd' => $this->_getWebsiteDateTable()),
+                'cw.website_id = cwd.website_id',
+                array())
+            ->where('cw.website_id != 0')
+            ->columns(new Zend_Db_Expr('tp.stock_id, tp.currency, tp.store_id'))        // extra columns added for Innoexts_WarehousePlus
+            ->columns(new Zend_Db_Expr("MIN({$websiteExpression})"))
+            ->group(array('tp.entity_id', 'cg.customer_group_id', 'cw.website_id'));
+
+        if (!empty($entityIds)) {
+            $select->where('tp.entity_id IN(?)', $entityIds);
+        }
+
+        $query = $select->insertFromSelect($table);
+        $write->query($query);
+
+        return $this;
+    }
 }
