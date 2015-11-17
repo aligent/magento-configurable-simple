@@ -1,6 +1,6 @@
 <?php
 
-if (class_exists('Innoexts_Warehouse_Model_Mysql4_Catalog_Product_Indexer_Price_Configurable')) {
+if (class_exists('Innoexts_WarehousePlus_Model_Mysql4_Catalog_Product_Indexer_Price_Configurable')) {
 /**
  * This class extends InnoExts Multiwarehouse if it's being used.  If so, the stock_id column added by the
  * multiwarehouse module is also included in the index.
@@ -8,7 +8,7 @@ if (class_exists('Innoexts_Warehouse_Model_Mysql4_Catalog_Product_Indexer_Price_
  * Class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable_Abstract
  */
 class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable_Abstract
-    extends Innoexts_Warehouse_Model_Mysql4_Catalog_Product_Indexer_Price_Configurable
+    extends Innoexts_WarehousePlus_Model_Mysql4_Catalog_Product_Indexer_Price_Configurable
 {
 
     protected function getOuterColumns() {

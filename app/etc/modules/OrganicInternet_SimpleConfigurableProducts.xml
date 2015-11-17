@@ -1,9 +1,12 @@
 <?xml version="1.0"?>
 <config>
   <modules>
-    <OrganicInternet_SimpleConfigurableProducts>
-      <active>true</active>
-      <codePool>community</codePool>
-    </OrganicInternet_SimpleConfigurableProducts>
+      <OrganicInternet_SimpleConfigurableProducts>
+          <active>true</active>
+          <codePool>community</codePool>
+          <depends>
+              <Innoexts_WarehousePlus/>
+          </depends>
+      </OrganicInternet_SimpleConfigurableProducts>
   </modules>
 </config>

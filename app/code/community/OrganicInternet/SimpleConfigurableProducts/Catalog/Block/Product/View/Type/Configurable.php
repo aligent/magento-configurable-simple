@@ -1,7 +1,7 @@
 <?php
 
 class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type_Configurable
-    extends Mage_Catalog_Block_Product_View_Type_Configurable
+    extends Innoexts_Warehouse_Block_Catalog_Product_View_Type_Configurable
 {
     public function getJsonConfig()
     {
@@ -34,7 +34,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
                     ->setProduct($product)
                     ->toHtml();
             }
-            
+
             $bChangeStock = Mage::getStoreConfig('SCP_options/product_page/change_stock');
             if ($bChangeStock) {
                 // Stock status HTML
@@ -45,7 +45,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
                 $oAddToCartBlock = $this->getLayout()->createBlock('catalog/product_view_type_simple')->setTemplate('catalog/product/view/addtocart.phtml');
                 $childProducts[$productId]["addToCart"] = $oAddToCartBlock->setProduct($product)->toHtml();
             }
-            
+
             $bShowProductAlerts = Mage::getStoreConfig(Mage_ProductAlert_Model_Observer::XML_PATH_STOCK_ALLOW);
             if ($bShowProductAlerts && !$product->isAvailable()) {
                 $oAlertBlock = $this->getLayout()->createBlock('productalert/product_view')
@@ -102,7 +102,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         $config["productAttributes"] = $childBlock->setTemplate('catalog/product/view/attributes.phtml')
             ->setProduct($this->getProduct())
             ->toHtml();
-        
+
         $bShowProductAlerts = Mage::getStoreConfig(Mage_ProductAlert_Model_Observer::XML_PATH_STOCK_ALLOW);
         if ($bShowProductAlerts && !Mage::registry('child_product')->isAvailable()) {
             $oAlertBlock = $this->getLayout()->createBlock('productalert/product_view')
