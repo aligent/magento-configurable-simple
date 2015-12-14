@@ -175,4 +175,17 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         return $options;
     }
 
+    /**
+     * Add child product id to cache key to make sure correct swatch is selected when visit PDP using child product url
+     * @return string
+     */
+    public function getCacheKey()
+    {
+        $vCacheKey = parent::getCacheKey();
+        if ($oChildProduct = Mage::registry('child_product')) {
+            $vCacheKey .= 'c_' . $oChildProduct->getId();
+        }
+        return $vCacheKey;
+    }
+
 }
