@@ -1,6 +1,6 @@
 <?php
 class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
-    extends Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
+    extends OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable_Abstract
 {
     protected function _isManageStock()
     {
@@ -73,21 +73,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysq
 
         $isValidChildProductExpr = new Zend_Db_Expr("{$productStatusExpr}");
 
-        $select->columns(array(
-            'entity_id'         => new Zend_Db_Expr('e.entity_id'),
-            'customer_group_id' => new Zend_Db_Expr('pi.customer_group_id'),
-            'website_id'        => new Zend_Db_Expr('cw.website_id'),
-            'tax_class_id'      => new Zend_Db_Expr('pi.tax_class_id'),
-            'orig_price'        => new Zend_Db_Expr('pi.price'),
-            'price'             => new Zend_Db_Expr('pi.final_price'),
-            'min_price'         => new Zend_Db_Expr('pi.final_price'),
-            'max_price'         => new Zend_Db_Expr('pi.final_price'),
-            'tier_price'        => new Zend_Db_Expr('pi.tier_price'),
-            'base_tier'         => new Zend_Db_Expr('pi.tier_price'),
-            'group_price'       => new Zend_Db_Expr('pi.group_price'),
-            'base_group_price'  => new Zend_Db_Expr('pi.group_price'),
-        ));
-
+        $select->columns($this->getInnerColumns());
 
 
         if (!is_null($entityIds)) {
@@ -111,27 +97,13 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysq
             'store_field'   => new Zend_Db_Expr('cs.store_id')
         ));
 
-
         #This uses the fact that mysql's 'group by' picks the first row, and the subselect is ordered as we want it
         #Bit hacky, but lots of people do it :)
         $outerSelect = $write->select()
             ->from(array("inner" => $select), 'entity_id')
-            ->group(array('inner.entity_id', 'inner.customer_group_id', 'inner.website_id'));
+            ->group($this->getGroupBy());
 
-        $outerSelect->columns(array(
-            'customer_group_id',
-            'website_id',
-            'tax_class_id',
-            'orig_price',
-            'price',
-            'min_price',
-            'max_price'     => new Zend_Db_Expr('MAX(inner.max_price)'),
-            'tier_price',
-            'base_tier',
-            'group_price',
-            'base_group_price',
-            #'child_entity_id'
-        ));
+        $outerSelect->columns($this->getOuterColumns());
 
         $query = $outerSelect->insertFromSelect($this->_getDefaultFinalPriceTable());
         $write->query($query);

@@ -7,10 +7,14 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
     {
         $config = Zend_Json::decode(parent::getJsonConfig());
 
+        $aProducts = $this->getAllowProducts();
+
+        Mage::dispatchEvent('scp_config_before_prepare', array('config' => &$config, 'products' => $aProducts, 'block' => $this));
+
         $childProducts = array();
 
         //Create the extra price and tier price data/html we need.
-        foreach ($this->getAllowProducts() as $product) {
+        foreach ($aProducts as $product) {
             $productId  = $product->getId();
             $childProducts[$productId] = array(
                 "name" => $product->getName(),
@@ -87,10 +91,14 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
                         unset($option['price']);
                     }
                     unset($option); //clear foreach var ref
+
+                    /* Sort the Options */
+                    $info['options'] = $this->_sortOptions($info['options']);
                 }
             }
             unset($info); //clear foreach var ref
         }
+
 
         $p = $this->getProduct();
         $config['childProducts'] = $childProducts;
@@ -137,19 +145,60 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
             $config['showPriceRangesInOptions'] = true;
             $config['rangeToLabel'] = $this->__('to');
         }
+
+        $oEventData = new Varien_Object(array('config' => &$config, 'products' => $aProducts, 'block' => $this));
+
+        Mage::dispatchEvent('scp_config_after_prepare', array('event_data' => $oEventData));
+
         return Zend_Json::encode($config);
         //parent getJsonConfig uses the following instead, but it seems to just break inline translate of this json?
         //return Mage::helper('core')->jsonEncode($config);
     }
 
-    public function getCacheKey() {
-        $vCachekey = parent::getCacheKey();
-        if ($oChildProduct = Mage::registry('child_product')) {
-            if ($oChildProduct->isSaleable()) {
-                $vCachekey .= 'selected_'.$oChildProduct->getId();
+    // preserves the order of attribute options from the position field in the admin attribute option settings
+    protected function _sortOptions($options)
+    {
+        if (count($options)) {
+            if (!$this->_read || !$this->_tbl_eav_attribute_option) {
+                $resource = Mage::getSingleton('core/resource');
+
+                $this->_read = $resource->getConnection('core_read');
+                $this->_tbl_eav_attribute_option = $resource->getTableName('eav_attribute_option');
+            }
+
+            // Gather the option_id for all our current options
+            $option_ids = array();
+            foreach ($options as $option) {
+                $option_ids[] = $option['id'];
+
+                $var_name  = 'option_id_'.$option['id'];
+                $$var_name = $option;
+            }
+
+            $sql    = "SELECT `option_id` FROM `{$this->_tbl_eav_attribute_option}` WHERE `option_id` IN('".implode('\',\'', $option_ids)."') ORDER BY `sort_order`";
+            $result = $this->_read->fetchCol($sql);
+
+            $options = array();
+            foreach ($result as $option_id) {
+                $var_name  = 'option_id_'.$option_id;
+                $options[] = $$var_name;
             }
         }
-        return $vCachekey;
+
+        return $options;
+    }
+
+    /**
+     * Add child product id to cache key to make sure correct swatch is selected when visit PDP using child product url
+     * @return string
+     */
+    public function getCacheKey()
+    {
+        $vCacheKey = parent::getCacheKey();
+        if ($oChildProduct = Mage::registry('child_product')) {
+            $vCacheKey .= 'c_' . $oChildProduct->getId();
+        }
+        return $vCacheKey;
     }
 
 }
