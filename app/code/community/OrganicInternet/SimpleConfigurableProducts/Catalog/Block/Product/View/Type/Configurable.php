@@ -3,6 +3,24 @@
 class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type_Configurable
     extends Mage_Catalog_Block_Product_View_Type_Configurable
 {
+
+    public function getAllowProducts() {
+        $allowProducts = parent::getAllowProducts();
+        $productAttributeData = Mage::helper('simpleconfigurableproducts')->getProductAttributeData();
+        
+        $filteredProducts = array();
+        foreach ($allowProducts as $product) {
+            foreach ($productAttributeData as $attributeData) {
+                if ($product->getData($attributeData['attribute_code']) != $attributeData['value']) {
+                    continue 2; // Skips adding product to the filteredProducts array in the outer loop.
+                }
+            }
+            $filteredProducts[] = $product;
+        }
+        
+        return $filteredProducts;
+    }
+
     public function getJsonConfig()
     {
         $config = Zend_Json::decode(parent::getJsonConfig());
@@ -21,6 +39,12 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
                 "finalPrice" => $this->_registerJsPrice($this->_convertPrice($product->getFinalPrice())),
                 "sku" => $product->getSku(),
             );
+            
+            $priceModel = $product->getPriceModel();
+            if (is_callable(array($priceModel, 'getMinAmount')) && is_callable(array ($priceModel, 'getMaxAmount'))) {
+                $childProducts[$productId]['minAmount'] = $priceModel->getMinAmount($product);
+                $childProducts[$productId]['maxAmount'] = $priceModel->getMaxAmount($product);
+            }
 
             if (Mage::getStoreConfig('SCP_options/product_page/change_name')) {
                 $childProducts[$productId]["productName"] = $product->getName();

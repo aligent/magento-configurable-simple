@@ -81,6 +81,7 @@ if (count($_options) || $this->getProduct()->isConfigurable()):
         initialize : function(config){
             this.config = config;
             this.reloadPrice();
+            this.attachGiftCardPriceListener();
         },
         reloadPrice : function(){
             price = new Number();
@@ -131,6 +132,26 @@ if (count($_options) || $this->getProduct()->isConfigurable()):
                 optionsPrice.reload();
             } catch (e) {
 
+            }
+        },
+        attachGiftCardPriceListener : function() {
+            var gcSelect = $('giftcard_amount');
+            if (gcSelect) {
+                gcSelect.observe('change', function(event) {
+                    var gcSelect = Event.element(event);
+                    var price = gcSelect.getValue();
+                    if (price == '') {
+                        price = gcSelect.options[1].value;
+                        optionsPrice.reloadPriceLabels(false);
+                    } else {
+                        optionsPrice.reloadPriceLabels(true);
+                    }
+                    try {
+                        optionsPrice.productPrice = price;
+                        optionsPrice.reload();
+                    } catch (e) {
+                    }
+                });
             }
         }
     }

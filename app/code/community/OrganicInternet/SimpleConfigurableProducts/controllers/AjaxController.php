@@ -7,6 +7,9 @@ class OrganicInternet_SimpleConfigurableProducts_AjaxController extends Mage_Cat
     {
        $product = $this->_initProduct();
        if (!empty($product)) {
+           $update = $this->getLayout()->getUpdate();           
+           $update->addHandle('PRODUCT_TYPE_' . $product->getTypeId());
+           $update->addHandle('PRODUCT_' . $product->getId());
            $this->loadLayout(false);
            $this->renderLayout();
        }

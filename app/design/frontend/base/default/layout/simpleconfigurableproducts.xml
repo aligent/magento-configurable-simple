@@ -62,5 +62,17 @@
             <block type="catalog/product_gallery" name="catalog_product_gallery" template="catalog/product/gallery.phtml"/>
         </reference>
     </oi_ajax_gallery>
+    
+    <PRODUCT_TYPE_configurable>
+        <reference name="product.info.options.configurable">
+            <action method="setTemplate"><template>catalog/product/view/type/options/scpconfigurable.phtml</template></action>
+        </reference>
+    </PRODUCT_TYPE_configurable>
 
+    <PRODUCT_TYPE_giftcard>
+        <reference name="content">
+            <block output="toHtml" type="enterprise_giftcard/catalog_product_view_type_giftcard" name="giftcard.options" as="giftcard_options" template="giftcard/catalog/product/view/type/giftcard.phtml"/>
+        </reference>
+    </PRODUCT_TYPE_giftcard>
+    
 </layoutUpdate>
