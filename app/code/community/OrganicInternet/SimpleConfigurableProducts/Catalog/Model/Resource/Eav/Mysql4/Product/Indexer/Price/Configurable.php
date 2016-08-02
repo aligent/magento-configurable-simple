@@ -20,7 +20,6 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Resource_Eav_Mysq
     #It's all quite complicated. :/
     protected function _prepareFinalPriceData($entityIds = null)
     {
-
         $this->_prepareDefaultFinalPriceTable();
 
         $write  = $this->_getWriteAdapter();

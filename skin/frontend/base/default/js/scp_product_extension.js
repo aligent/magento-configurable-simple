@@ -147,13 +147,9 @@ Product.OptionsPrice.prototype.updateSpecialPriceDisplay = function(price, final
 
 //This triggers reload of price and other elements that can change
 //once all options are selected
-Product.Config.prototype.reloadPrice = function() {
+Product.Config.prototype.reloadPrice = function(reloadImage) {
     var childProductId = this.getMatchingSimpleProduct();
     var childProducts = this.config.childProducts;
-    var usingZoomer = false;
-    if(this.config.imageZoomer){
-        usingZoomer = true;
-    }
 
     if(childProductId){
         var price = childProducts[childProductId]["price"];
@@ -173,9 +169,8 @@ Product.Config.prototype.reloadPrice = function() {
         this.updateFormProductId(childProductId);
         this.addParentProductIdToCartForm(this.config.productId);
         this.showCustomOptionsBlock(childProductId, this.config.productId);
-        if (usingZoomer) {
-            this.showFullImageDiv(childProductId, this.config.productId);
-        }else{
+        //Do not check for usingZoomer, as galleria has it's own zoomer.
+        if (reloadImage) {
             this.updateProductImage(childProductId);
         }
 
@@ -196,9 +191,8 @@ Product.Config.prototype.reloadPrice = function() {
         this.updateProductSku(false);
         this.updateProductAttributes(false);
         this.showCustomOptionsBlock(false, false);
-        if (usingZoomer) {
-            this.showFullImageDiv(false, false);
-        }else{
+        //Do not check for usingZoomer, as galleria has it's own zoomer.
+        if (reloadImage) {
             this.updateProductImage(false);
         }
     }
@@ -208,24 +202,43 @@ Product.Config.prototype.reloadPrice = function() {
 
 Product.Config.prototype.updateProductImage = function(productId) {
     var imageUrl = this.config.imageUrl;
-    if(productId && this.config.childProducts[productId].imageUrl) {
-        imageUrl = this.config.childProducts[productId].imageUrl;
+
+    //If no productId is set, check for closest matching option
+    if(!productId) {
+        for(s=0; s<this.settings.length;s++) {
+            var selected = this.settings[s].options[this.settings[s].selectedIndex];
+
+            //Check for colour attributeId
+            if ( this.settings[s].attributeId == '76') {
+                productId = selected.config.allowedProducts[0];
+            }
+        }
     }
 
-    if (!imageUrl) {
+    //If the new image is the same as the current image, do nothing
+    if(typeof this.currentImageUrl !== 'undefined') {
+        if(typeof this.config.childProducts[productId] !== "undefined" && this.currentImageUrl == this.config.childProducts[productId].imageUrl[0]) {
+            return;
+        }
+    }
+
+    //If there is no product id or image, do nothing
+    if(productId && this.config.childProducts[productId].imageUrl) {
+        imageUrl = this.config.childProducts[productId].imageUrl;
+        this.currentImageUrl = imageUrl;
+    } else {
         return;
     }
 
-    if($('image')) {
-        $('image').src = imageUrl;
-    } else {
-        $$('#product_addtocart_form a.product-image img').each(function(el) {
-            var dims = el.getDimensions();
-            el.src = imageUrl;
-            el.width = dims.width;
-            el.height = dims.height;
-        });
+    var gal = Galleria.get(0);
+    var dataArr = new Array();
+
+    //Push simple products images
+    for(i = 0; i < imageUrl.length; i++) {
+        dataArr.push({image: imageUrl[i]})
     }
+
+    gal.load(dataArr);
 };
 
 Product.Config.prototype.updateProductName = function(productId) {
@@ -423,7 +436,8 @@ Product.Config.prototype.configureElement = function(element) {
             document.fire('scp:optionsChanged', {attributeId: attributeId});
         }
     }
-    this.reloadPrice();
+    reloadImage = (element.nextSetting !== false);  // Stop image reloading on last option (ie. size select)
+    this.reloadPrice(reloadImage);
 };
 
 

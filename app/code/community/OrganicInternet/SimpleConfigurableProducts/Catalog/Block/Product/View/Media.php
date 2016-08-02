@@ -5,6 +5,19 @@
 
 class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Media extends Mage_Catalog_Block_Product_View_Media {
 
+    public function getProduct()
+    {
+        $product = parent::getProduct();
+        if ($current_product = Mage::registry('child_product')) { // use child product image if set by observer method
+            $product = $current_product;
+        }
+        if (is_null($product->getTypeInstance(true)->getStoreFilter($product))) {
+            $product->getTypeInstance(true)->setStoreFilter(Mage::app()->getStore(), $product);
+        }
+
+        return $product;
+    }
+
     public function getGalleryUrl($image=null)
     {
         #$params = array('id'=>$this->getProduct()->getId());
