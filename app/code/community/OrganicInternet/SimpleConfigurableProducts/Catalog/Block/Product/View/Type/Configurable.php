@@ -17,9 +17,9 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         foreach ($aProducts as $product) {
             $productId  = $product->getId();
             $childProducts[$productId] = array(
-                "price" => $this->_registerJsPrice($this->_convertPrice($product->getPrice())),
-                "finalPrice" => $this->_registerJsPrice($this->_convertPrice($product->getFinalPrice())),
-                "sku" => $product->getSku(),
+                'price' => $this->_registerJsPrice($this->_convertPrice($product->getPrice())),
+                'finalPrice' => $this->_registerJsPrice($this->_convertPrice($product->getFinalPrice())),
+                'sku' => $product->getSku(),
             );
 
             if (Mage::getStoreConfig('SCP_options/product_page/change_name')) {
@@ -58,35 +58,35 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
                 $childProducts[$productId]["alertHtml"] = $oAlertBlock->toHtml();
             }
 
-            #if image changing is enabled..
+            // if image changing is enabled..
             if (Mage::getStoreConfig('SCP_options/product_page/change_image')) {
-                #but dont bother if fancy image changing is enabled
+                // but dont bother if fancy image changing is enabled
                 if (!Mage::getStoreConfig('SCP_options/product_page/change_image_fancy')) {
-                    #If image is not placeholder...
-                    if($product->getImage()!=='no_selection') {
+                    // If image is not placeholder...
+                    if ($product->getImage()!=='no_selection') {
                         $childProducts[$productId]["imageUrl"] = (string)Mage::helper('catalog/image')->init($product, 'image');
                     }
                 }
             }
         }
 
-        //Remove any existing option prices.
-        //Removing holes out of existing arrays is not nice,
-        //but it keeps the extension's code separate so if Varien's getJsonConfig
-        //is added to, things should still work.
+        // Remove any existing option prices.
+        // Removing holes out of existing arrays is not nice,
+        // but it keeps the extension's code separate so if Varien's getJsonConfig
+        // is added to, things should still work.
         if (is_array($config['attributes'])) {
             foreach ($config['attributes'] as $attributeID => &$info) {
                 if (is_array($info['options'])) {
                     foreach ($info['options'] as &$option) {
                         unset($option['price']);
                     }
-                    unset($option); //clear foreach var ref
+                    unset($option); // clear foreach var ref
 
                     /* Sort the Options */
                     $info['options'] = $this->_sortOptions($info['options']);
                 }
             }
-            unset($info); //clear foreach var ref
+            unset($info); // clear foreach var ref
         }
 
 
@@ -103,11 +103,11 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         $config['shortDescription'] = $this->helper('catalog/output')->productAttribute($p, nl2br($p->getShortDescription()), 'short_description');
 
         if (Mage::getStoreConfig('SCP_options/product_page/change_image')) {
-            $config["imageUrl"] = (string)Mage::helper('catalog/image')->init($p, 'image');
+            $config['imageUrl'] = (string)Mage::helper('catalog/image')->init($p, 'image');
         }
 
         $childBlock = $this->getLayout()->createBlock('catalog/product_view_attributes');
-        $config["productAttributes"] = $childBlock->setTemplate('catalog/product/view/attributes.phtml')
+        $config['productAttributes'] = $childBlock->setTemplate('catalog/product/view/attributes.phtml')
             ->setProduct($this->getProduct())
             ->toHtml();
         
@@ -116,13 +116,13 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
             $oAlertBlock = $this->getLayout()->createBlock('productalert/product_view')
                     ->setTemplate('productalert/product/view.phtml')
                     ->setSignupUrl(Mage::helper('productalert')->setProduct(Mage::registry('child_product'))->getSaveUrl('stock'));;
-            $config["alertHtml"] = $oAlertBlock->toHtml();
+            $config['alertHtml'] = $oAlertBlock->toHtml();
         }
 
         if (Mage::getStoreConfig('SCP_options/product_page/change_image')) {
             if (Mage::getStoreConfig('SCP_options/product_page/change_image_fancy')) {
                 $childBlock = $this->getLayout()->createBlock('catalog/product_view_media');
-                $config["imageZoomer"] = $childBlock->setTemplate('catalog/product/view/media.phtml')
+                $config['imageZoomer'] = $childBlock->setTemplate('catalog/product/view/media.phtml')
                     ->setProduct($this->getProduct())
                     ->toHtml();
             }
@@ -142,7 +142,11 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
         //return Mage::helper('core')->jsonEncode($config);
     }
 
-    // preserves the order of attribute options from the position field in the admin attribute option settings
+    /**
+     * Preserves the order of attribute options from the position field in the admin attribute option settings
+     * @param  array $options
+     * @return array
+     */
     protected function _sortOptions($options)
     {
         if (count($options)) {
@@ -154,21 +158,21 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Block_Product_View_Type
             }
 
             // Gather the option_id for all our current options
-            $option_ids = array();
+            $optionIds = array();
             foreach ($options as $option) {
-                $option_ids[] = $option['id'];
+                $optionIds[] = $option['id'];
 
-                $var_name  = 'option_id_'.$option['id'];
-                $$var_name = $option;
+                $varName  = 'option_id_' . $option['id'];
+                $$varName = $option;
             }
 
-            $sql    = "SELECT `option_id` FROM `{$this->_tbl_eav_attribute_option}` WHERE `option_id` IN('".implode('\',\'', $option_ids)."') ORDER BY `sort_order`";
+            $sql    = "SELECT `option_id` FROM `{$this->_tbl_eav_attribute_option}` WHERE `option_id` IN('" . implode('\',\'', $optionIds) . "') ORDER BY `sort_order`";
             $result = $this->_read->fetchCol($sql);
 
             $options = array();
-            foreach ($result as $option_id) {
-                $var_name  = 'option_id_'.$option_id;
-                $options[] = $$var_name;
+            foreach ($result as $optionId) {
+                $varName  = 'option_id_' . $optionId;
+                $options[] = $$varName;
             }
         }
 
