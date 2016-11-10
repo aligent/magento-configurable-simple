@@ -120,13 +120,15 @@ Product.Config.prototype.addParentProductIdToCartForm = function(parentProductId
 
 
 
-Product.OptionsPrice.prototype.updateSpecialPriceDisplay = function(price, finalPrice) {
+Product.OptionsPrice.prototype.updateSpecialPriceDisplay = function(price, finalPrice, productId) {
 
     var prodForm = $('product_addtocart_form');
+    var priceBox = prodForm.select('.price-box');
 
     var specialPriceBox = prodForm.select('p.special-price');
     var oldPricePriceBox = prodForm.select('p.old-price, p.was-old-price');
     var magentopriceLabel = prodForm.select('span.price-label');
+    var regularPriceBox = prodForm.select('.price-container span.regular-price');
 
     if (price == finalPrice) {
         specialPriceBox.each(function(x) {x.hide();});
@@ -136,6 +138,18 @@ Product.OptionsPrice.prototype.updateSpecialPriceDisplay = function(price, final
             x.addClassName('was-old-price');
         });
     }else{
+        //In the case where a subset of configurables are on sale, we need to replace the standard regular-price
+        //element with old-price and special-price.
+        if(regularPriceBox.length === 1 && productId){
+            regularPriceBox[0].remove();
+            priceBox.each(function(x){
+                x.insert({bottom:'<p class="old-price"><span class="price" id="old-price-' + productId +'"></span></p>'});
+            });
+            priceBox.each(function(x){
+                x.insert({bottom:'<p class="special-price"><span class="price" id="product-price-' + productId +'"></span></p>'});
+            });
+        }
+
         specialPriceBox.each(function(x) {x.show();});
         magentopriceLabel.each(function(x) {x.show();});
         oldPricePriceBox.each(function(x) {
@@ -161,9 +175,9 @@ Product.Config.prototype.reloadPrice = function() {
         optionsPrice.productPrice = finalPrice;
         optionsPrice.productPriceBeforeRedemptions = finalPrice;
         optionsPrice.productOldPrice = price;
+        optionsPrice.updateSpecialPriceDisplay(price, finalPrice, this.config.productId);
         optionsPrice.reload();
         optionsPrice.reloadPriceLabels(true);
-        optionsPrice.updateSpecialPriceDisplay(price, finalPrice);
         this.updateProductShortDescription(childProductId);
         this.updateProductDescription(childProductId);
         this.updateProductName(childProductId);
@@ -186,9 +200,9 @@ Product.Config.prototype.reloadPrice = function() {
         var finalPrice = childProducts[cheapestPid]["finalPrice"];
         optionsPrice.productPrice = finalPrice;
         optionsPrice.productOldPrice = price;
+        optionsPrice.updateSpecialPriceDisplay(price, finalPrice, this.config.productId);
         optionsPrice.reload();
         optionsPrice.reloadPriceLabels(false);
-        optionsPrice.updateSpecialPriceDisplay(price, finalPrice);
         this.updateProductShortDescription(false);
         this.updateProductDescription(false);
         this.updateProductName(false);
